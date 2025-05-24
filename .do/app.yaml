@@ -1,0 +1,13 @@
+name: i14y-dataset-import
+services:
+- name: web
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: your-username/i14y-dataset-import
+  envs:
+  - key: FLASK_SECRET_KEY
+    value: ""
+    type: SECRET
+  build_command: pip install -r requirements.txt
+  run_command: gunicorn run:app
