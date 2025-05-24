@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>Dataset Upload für I14Y</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    Laden Sie Ihre Excel-Datei mit den Dataset-Informationen hoch. 
+                    Das System wird ihre Metadaten aufbereiten und zu I14Y hochladen.
+                    Bitte verwenden Sie für Ihr lokales Inventar exakt das vorgegebene Excel-Format
+                    (<a href="{{ url_for('static', filename='inventory.xlsx') }}">Beispiel-Datei</a>).
+                </p>
+                
+                <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="access_token" class="form-label">I14Y Zugriffstoken *</label>
+                        <textarea class="form-control" id="access_token" name="access_token" rows="4" required placeholder="Bearer eyJ..."></textarea>
+                        <div class="form-text">
+                            Fügen Sie Ihren vollständigen I14Y Zugriffstoken ein.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Excel-Datei auswählen *</label>
+                        <input type="file" class="form-control" id="file" name="file" accept=".xlsx" required>
+                        <div class="form-text">Nur Excel-Dateien (.xlsx) sind erlaubt. Maximale Dateigröße: 16MB</div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Upload und Verarbeitung starten</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <h5>Anleitung:</h5>
+            <ol>
+                <li>Melden Sie sich bei I14Y an und kopieren Sie Ihr Zugriffstoken.</li>
+                <li>Fügen Sie das Token in das Textfeld ein.</li>
+                <li>Stellen Sie sicher, dass Ihre Excel-Datei das korrekte Format hat.</li>
+                <li>Wählen Sie die Excel-Datei aus.</li>
+                <li>Klicken Sie auf "Upload und Verarbeitung starten".</li>
+            </ol>
+            
+            <div class="alert alert-info mt-3">
+                <strong>Token-Information:</strong> Der Zugriffstoken wird automatisch analysiert, 
+                um Ihre Organisations-ID und Benutzerinformationen zu extrahieren. 
+                Stellen Sie sicher, dass der Token gültig und nicht abgelaufen ist.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

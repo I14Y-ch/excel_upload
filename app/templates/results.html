@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>Verarbeitungsergebnis</h3>
+            </div>
+            <div class="card-body">
+                <div id="status-container">
+                    {% if status == 'completed' %}
+                    <div class="alert alert-success">
+                        <h5><i class="bi bi-check-circle"></i> Erfolgreich abgeschlossen!</h5>
+                        <p>{{ result.message }}</p>
+                    </div>
+                    {% elif status == 'completed_with_errors' %}
+                    <div class="alert alert-warning">
+                        <h5><i class="bi bi-exclamation-triangle"></i> Abgeschlossen mit Fehlern</h5>
+                        <p>{{ result.message }}</p>
+                    </div>
+                    {% elif status == 'error' %}
+                    <div class="alert alert-danger">
+                        <h5><i class="bi bi-exclamation-circle"></i> Fehler aufgetreten</h5>
+                        <p>{{ result.message }}</p>
+                        {% if result.error_details %}
+                        <pre class="mt-2 small">{{ result.error_details }}</pre>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% if result.i14y_links and result.i14y_links|length > 0 %}
+                <div class="mt-3">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6>Erstellte Datasets auf I14Y:</h6>
+                            <div id="links-container">
+                                {% for link in result.i14y_links %}
+                                <div class="mb-2 p-2 border-start border-light border-3">
+                                    <div>
+                                        <strong>{{ link.title or 'Dataset' }}</strong>
+                                    </div>
+                                    <div>
+                                        <small>ID: {{ link.id }}</small>
+                                    </div>
+                                    <div class="mt-1">
+                                        <a href="{{ link.link }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            Auf I14Y ansehen
+                                        </a>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="alert alert-info text-dark mt-3 mb-0">
+                                <small><strong>Hinweis:</strong> Sie müssen sich möglicherweise bei I14Y anmelden, 
+                                um die erstellten Datasets anzusehen. Wenn Sie auf einen Link klicken und eine 
+                                Anmeldeseite erscheint, melden Sie sich mit Ihren I14Y-Zugangsdaten an.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="mt-3">
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">Zurück zum Upload</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

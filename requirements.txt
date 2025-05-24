@@ -1,0 +1,9 @@
+flask>=2.3.3
+werkzeug>=2.3.7
+openpyxl>=3.1.2
+pandas>=1.5.0
+requests>=2.31.0
+python-dateutil>=2.8.2
+PyJWT>=2.8.0
+APScheduler>=3.10.1
+gunicorn>=21.2.0  # For production deployment
