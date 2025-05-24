@@ -6,4 +6,4 @@ requests>=2.31.0
 python-dateutil>=2.8.2
 PyJWT>=2.8.0
 APScheduler>=3.10.1
-gunicorn>=21.2.0  # For production deployment
+gunicorn>=21.2.0
