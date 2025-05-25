@@ -73,8 +73,27 @@ def delete_uploaded_file(filepath):
         print(f"Warning: Failed to delete temporary file {filepath}: {str(e)}")
 
 def register_routes(app):
-    # Get the upload folder from the Flask app config
-    upload_folder = app.config['UPLOAD_FOLDER']
+    # Use system temp directory or create uploads in a location we know is writable
+    import tempfile
+    upload_folder = os.environ.get('UPLOAD_FOLDER', 
+                                  os.path.join(tempfile.gettempdir(), 'i14y_uploads'))
+    
+    # Make sure the directory exists and is writable
+    os.makedirs(upload_folder, exist_ok=True)
+    
+    # Test if directory is writable
+    try:
+        test_file = os.path.join(upload_folder, 'test_write.txt')
+        with open(test_file, 'w') as f:
+            f.write('test')
+        os.remove(test_file)
+        print(f"Successfully confirmed upload directory is writable: {upload_folder}")
+    except Exception as e:
+        print(f"WARNING: Upload directory may not be writable: {upload_folder}, Error: {e}")
+        # Fall back to /tmp which should always be writable
+        upload_folder = os.path.join('/tmp', 'i14y_uploads')
+        os.makedirs(upload_folder, exist_ok=True)
+        print(f"Using fallback upload directory: {upload_folder}")
     
     @app.route('/')
     def index():
@@ -107,6 +126,10 @@ def register_routes(app):
             filename = secure_filename(file.filename)
             unique_filename = f"{uuid.uuid4()}_{filename}"
             filepath = os.path.join(upload_folder, unique_filename)
+            
+            # Double-check directory exists before saving
+            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+            
             file.save(filepath)
             
             try:
