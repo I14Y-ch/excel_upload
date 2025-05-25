@@ -5,14 +5,15 @@
     <div class="col-md-8">
         <div class="card">
             <div class="card-header">
-                <h3>Dataset Upload für I14Y</h3>
+                <h3>I14Y-Importservice für Excel</h3>
             </div>
             <div class="card-body">
                 <p class="text-muted">
-                    Laden Sie Ihre Excel-Datei mit den Dataset-Informationen hoch. 
-                    Das System wird ihre Metadaten aufbereiten und zu I14Y hochladen.
-                    Bitte verwenden Sie für Ihr lokales Inventar exakt das vorgegebene Excel-Format
-                    (<a href="{{ url_for('static', filename='inventory.xlsx') }}">Beispiel-Datei</a>).
+                    Führen Sie bislang ein Dateninventar in einer Excel-Tabelle? Laden Sie mit diesen
+                    Webdienst die Metadaten Ihrer Datensätze auf einfache Weise auf die 
+                    Interoperabilitätsplattform I14Y. Bitte verwenden Sie für Ihr Inventar 
+                    exakt die vorgegebene Excel-Struktur 
+                    (siehe <a href="{{ url_for('static', filename='inventory.xlsx') }}">Beispiel-Datei</a>).
                 </p>
                 
                 <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">

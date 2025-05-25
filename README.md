@@ -3,6 +3,7 @@
 ## Metadata Import Made Easy
 
 Streamline your dataset management workflow! This tool enables efficient bulk importation of dataset metadata into Switzerland's I14Y platform.
+> **Note:** This repository is for those who want to deploy the code themselves. If you only want to use the service, please visit the [I14Y Excel Importer web application](https://i14y-excel-upload-7ahld.ondigitalocean.app/).
 
 ## Deployment on Digital Ocean App Platform
 
@@ -11,7 +12,7 @@ Streamline your dataset management workflow! This tool enables efficient bulk im
 2. A Digital Ocean account
 
 ### Steps
-1. Create a new app on Digital Ocean App Platform
+1. Create a new app on [Digital Ocean](https://digitalocean.com) App Platform
 2. Connect your GitHub repository
 3. Configure environment variables:
    - `FLASK_SECRET_KEY`: A secure random string for session encryption
