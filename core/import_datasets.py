@@ -79,7 +79,6 @@ def create_dataset_payload(row, publisher_identifier=None):
         "data": {
             "title": create_language_object(row['title']),
             "description": create_language_object(row['description']),
-            "identifiers": [row['identificator']],
             "publisher": {"identifier": publisher_identifier or ""},
             "accessRights": {"code": access_rights_code or "PUBLIC"},
             "issued": row['issued'].isoformat() if pd.notna(row['issued']) else None,
