@@ -4,7 +4,8 @@ import jwt
 from flask import render_template, request, redirect, url_for, flash, jsonify, session
 from werkzeug.utils import secure_filename
 
-from config import ALLOWED_EXTENSIONS, JWT_DECODE_OPTIONS
+from jwt_helpers import get_openid_configuration, get_signing_key_from_jwks
+from config import ALLOWED_EXTENSIONS, JWT_DECODE_OPTIONS, JWT_EXPECTED_ISSUER
 from core import import_datasets
 
 
@@ -17,7 +18,38 @@ def parse_jwt_token(token):
         if token.startswith("Bearer "):
             token = token[7:]
 
-        decoded = jwt.decode(token, options=JWT_DECODE_OPTIONS)
+        unverified_header = jwt.get_unverified_header(token)
+        unverified_payload = jwt.decode(token, options={"verify_signature": False})
+
+        issuer = unverified_payload.get("iss")
+        if not issuer:
+            raise ValueError("Token does not contain 'iss' claim")
+
+        if JWT_EXPECTED_ISSUER and issuer.rstrip("/") != JWT_EXPECTED_ISSUER.rstrip("/"):
+            raise ValueError("Unexpected token issuer")
+
+        discovery = get_openid_configuration(issuer)
+        jwks_uri = discovery.get("jwks_uri")
+        if not jwks_uri:
+            raise ValueError("OIDC discovery document does not contain jwks_uri")
+
+        kid = unverified_header.get("kid")
+        if not kid:
+            raise ValueError("Token header does not contain 'kid'")
+
+        signing_key = get_signing_key_from_jwks(jwks_uri, kid)
+
+        decode_kwargs = {
+            "jwt": token,
+            "key": signing_key,
+            "algorithms": ["RS256"],
+            "options": JWT_DECODE_OPTIONS,
+        }
+
+        if JWT_EXPECTED_ISSUER:
+            decode_kwargs["issuer"] = JWT_EXPECTED_ISSUER
+
+        decoded = jwt.decode(**decode_kwargs)
 
         agencies = decoded.get("agencies", [])
         if not agencies:
@@ -39,6 +71,7 @@ def parse_jwt_token(token):
             "user_name": f"{decoded.get('given_name', '')} {decoded.get('family_name', '')}".strip(),
             "agencies": agencies,
         }
+
     except jwt.ExpiredSignatureError:
         raise ValueError("Token ist abgelaufen")
     except jwt.InvalidTokenError as e:
@@ -104,7 +137,7 @@ def register_routes(app):
     def upload_file():
         if "file" not in request.files:
             flash("Keine Datei ausgewählt")
-            return redirect(request.url)
+            return redirect(url_for("index"))
 
         file = request.files["file"]
         access_token = request.form.get("access_token", "").strip()
@@ -154,6 +187,7 @@ def register_routes(app):
                         "org_info": org_info,
                         "success_count": success_count,
                         "error_count": error_count,
+                        "errors": result.get("errors", []),
                         "i14y_links": i14y_links,
                         "message": f"Import abgeschlossen: {success_count} erfolgreich, {error_count} fehlgeschlagen",
                     }

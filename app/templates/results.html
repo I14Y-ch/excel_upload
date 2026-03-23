@@ -26,8 +26,13 @@
           <div class="alert alert-danger">
             <h5><i class="bi bi-exclamation-circle"></i> Fehler aufgetreten</h5>
             <p>{{ result.message }}</p>
-            {% if result.error_details %}
-            <pre class="mt-2 small">{{ result.error_details }}</pre>
+            {% if result.errors %}
+            <div class="mt-3">
+              <h6>Fehlerdetails</h6>
+              {% for error in result.errors %}
+              <pre class="mt-2 small">{{ error }}</pre>
+              {% endfor %}
+            </div>
             {% endif %}
           </div>
           {% endif %}

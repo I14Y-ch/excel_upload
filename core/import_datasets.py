@@ -1,3 +1,4 @@
+import traceback
 import pandas as pd
 import requests
 from datetime import datetime
@@ -7,14 +8,17 @@ from config import API_BASE_URL
 from core.codelist_utils import map_theme_to_code, map_license_to_code, map_access_rights_to_code
 
 
-def create_language_object(text, lang="de"):
-    return {lang: text}
+def create_language_object(text, lang="de", label=False):
+    if label:
+        return {"label": {lang: text}}
+    else:
+        return {lang: text}
 
 
 def create_uri_label_object(uri, label=None):
     obj = {"uri": uri}
     if label:
-        obj["label"] = create_language_object(label)
+        obj.update(create_language_object(label))
     return obj
 
 
@@ -37,7 +41,7 @@ def process_keywords(row):
         key = f"keywords_{i}"
         value = safe_get(row, key)
         if pd.notna(value):
-            keywords.append(create_language_object(value))
+            keywords.append(create_language_object(value, label=True))
     return keywords
 
 
@@ -91,6 +95,9 @@ def create_dataset_payload(row, publisher_identifier=None):
             "modified": row["modified"].isoformat() if pd.notna(row["modified"]) else None,
         }
     }
+    dataset_identifier = safe_get(row, "identificator")
+    if dataset_identifier:
+        payload["data"]["identifiers"] = [dataset_identifier]
 
     keywords = process_keywords(row)
     if keywords:
@@ -195,6 +202,7 @@ def main(template_path, api_token=None, organization_id=None, publisher_identifi
     success_count = 0
     error_count = 0
     successful_datasets = []
+    errors = []
 
     print("\nStarting dataset import...\n")
 
@@ -217,6 +225,9 @@ def main(template_path, api_token=None, organization_id=None, publisher_identifi
         except Exception as e:
             error_count += 1
             print(f"✗ Error: {str(e)}\n")
+            errors.append(str(e))
+            traceback.print_exc()
+            print()
 
     print("=== Import Summary ===")
     print(f"Total processed: {success_count + error_count}")
@@ -228,4 +239,5 @@ def main(template_path, api_token=None, organization_id=None, publisher_identifi
         "success_count": success_count,
         "error_count": error_count,
         "total_count": success_count + error_count,
+        "errors": errors,
     }
