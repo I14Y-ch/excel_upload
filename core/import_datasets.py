@@ -18,7 +18,7 @@ def create_language_object(text, lang="de", label=False):
 def create_uri_label_object(uri, label=None):
     obj = {"uri": uri}
     if label:
-        obj.update(create_language_object(label))
+        obj.update(create_language_object(label, label=True))
     return obj
 
 
