@@ -52,7 +52,7 @@ header {
 .layout-brand {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     height: 100%;
     width: 100%;
 }
@@ -62,16 +62,12 @@ header {
     align-items: center;
 }
 
-.brand-right {
-    display: flex;
-    align-items: center;
-}
-
 .header-info {
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    margin-left: 12px;
     width: 30px;
     height: 30px;
     border: 1px solid #d9d9e3;
