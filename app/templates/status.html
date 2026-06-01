@@ -1,48 +1,32 @@
-{% extends "base.html" %} {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-8">
-    <div class="card">
-      <div class="card-header">
-        <h3>Verarbeitungsstatus</h3>
-      </div>
-      <div class="card-body">
-        <div id="status-container">
-          <div class="d-flex align-items-center">
-            <div class="spinner-border text-primary me-3" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
+{% extends "base.html" %}
+
+{% block title %}Import-Status – I14Y{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{{ url_for('index') }}" class="back-link">Zurück zum Upload</a>
+    <h1>Verarbeitungsstatus</h1>
+    <p class="page-lead">Der Status wird automatisch aktualisiert.</p>
+</div>
+
+<div class="workflow-section">
+    <div id="status-container" class="status-live-box">
+        <div class="status-loading-row">
+            <div class="loading-spinner" aria-hidden="true"></div>
             <div>
-              <h5 id="status-message">Lädt...</h5>
-              <p class="text-muted" id="status-details"></p>
+                <h3 id="status-message">Lädt…</h3>
+                <p class="section-description" id="status-details"></p>
             </div>
-          </div>
         </div>
-
-        <div id="i14y-links" class="mt-3" style="display: none">
-          <div class="card bg-light">
-            <div class="card-body">
-              <h6>Erstellte Datasets auf I14Y:</h6>
-              <div id="links-container"></div>
-              <div class="alert alert-info text-dark mt-3 mb-0">
-                <small
-                  ><strong>Hinweis:</strong> Sie müssen sich möglicherweise bei
-                  I14Y anmelden, um die erstellten Datasets anzusehen. Wenn Sie
-                  auf einen Link klicken und eine Anmeldeseite erscheint, melden
-                  Sie sich mit Ihren I14Y-Zugangsdaten an.</small
-                >
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-3">
-          <a href="{{ url_for('index') }}" class="btn btn-secondary"
-            >Zurück zum Upload</a
-          >
-        </div>
-      </div>
     </div>
-  </div>
+</div>
+
+<div id="i14y-links" class="workflow-section" style="display: none;">
+    <h2 class="dataset-title">Erstellte Datensätze auf I14Y</h2>
+    <div id="links-container" class="result-links"></div>
+    <p class="section-description">
+        Hinweis: Sie müssen sich gegebenenfalls bei I14Y anmelden, bevor die Datensätze sichtbar sind.
+    </p>
 </div>
 
 <script>
@@ -52,7 +36,7 @@
       .then((data) => {
         const container = document.getElementById("status-container");
         const message = document.getElementById("status-message");
-        const i14yLinks = document.getElementById("i14y-links");
+        const i14yLinksSection = document.getElementById("i14y-links");
 
         message.textContent = data.message || "Unbekannter Status";
 
@@ -62,27 +46,16 @@
 
           data.i14y_links.forEach((link) => {
             const linkElement = document.createElement("div");
-            linkElement.className =
-              "mb-2 p-2 border-start border-light border-3";
+            linkElement.className = "result-link-card";
             linkElement.innerHTML = `
-                        <div>
-                            <strong>${link.title || "Dataset"}</strong>
-                        </div>
-                        <div>
-                            <small>ID: ${link.id}</small>
-                        </div>
-                        <div class="mt-1">
-                            <a href="${
-                              link.link
-                            }" target="_blank" class="btn btn-sm btn-outline-primary">
-                                Auf I14Y ansehen
-                            </a>
-                        </div>
+                        <p class="dataset-title">${link.title || "Dataset"}</p>
+                        <p class="section-description">ID: ${link.id}</p>
+                        <a href="${link.link}" target="_blank" rel="noopener" class="primary-btn">Auf I14Y ansehen</a>
                     `;
             linksContainer.appendChild(linkElement);
           });
 
-          i14yLinks.style.display = "block";
+          i14yLinksSection.style.display = "block";
         } else if (
           data.status === "completed" ||
           data.status === "completed_with_errors"
@@ -90,42 +63,42 @@
           if (data.result && data.result.success_count > 0) {
             const linksContainer = document.getElementById("links-container");
             linksContainer.innerHTML = `
-                        <div class="alert alert-light">
-                            <p><strong>Links zu den erstellten Datasets auf I14Y:</strong></p>
-                            <p>Die I14Y-Links konnten nicht automatisch generiert werden, aber Sie können Ihre Datasets 
-                            <a href="https://input.i14y.admin.ch/catalog/datasets" target="_blank" class="fw-bold">
-                                hier im I14Y-Portal
+                  <div class="status-banner status-info">
+                    <p><strong>Links zu den erstellten Datensätzen:</strong></p>
+                    <p>Die direkten Links konnten nicht automatisch erzeugt werden. Ihre Datensätze finden Sie
+                    <a href="https://input.i14y.admin.ch/catalog/datasets" target="_blank" rel="noopener">
+                      im I14Y-Portal
                             </a> finden.</p>
                         </div>
                     `;
-            i14yLinks.style.display = "block";
+            i14yLinksSection.style.display = "block";
           }
         }
 
         if (data.status === "completed") {
           container.innerHTML = `
-                    <div class="alert alert-success">
-                        <h5><i class="bi bi-check-circle"></i> Erfolgreich abgeschlossen!</h5>
+                <div class="status-banner status-success">
+                  <h3>Erfolgreich abgeschlossen</h3>
                         <p>${data.message}</p>
                     </div>
                 `;
           clearInterval(statusInterval);
         } else if (data.status === "completed_with_errors") {
           container.innerHTML = `
-                    <div class="alert alert-warning">
-                        <h5><i class="bi bi-exclamation-triangle"></i> Abgeschlossen mit Fehlern</h5>
+                <div class="status-banner status-warning">
+                  <h3>Abgeschlossen mit Fehlern</h3>
                         <p>${data.message}</p>
                     </div>
                 `;
           clearInterval(statusInterval);
         } else if (data.status === "error") {
           container.innerHTML = `
-                    <div class="alert alert-danger">
-                        <h5><i class="bi bi-exclamation-circle"></i> Fehler aufgetreten</h5>
+                <div class="status-banner status-error">
+                  <h3>Fehler aufgetreten</h3>
                         <p>${data.message}</p>
                         ${
                           data.short_error
-                            ? `<pre class="mt-2 small">${data.short_error}</pre>`
+                    ? `<pre class="error-log">${data.short_error}</pre>`
                             : ""
                         }
                     </div>

@@ -1,84 +1,55 @@
-{% extends "base.html" %} {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-8">
-    <div class="card">
-      <div class="card-header">
-        <h3>I14Y-Importservice für Excel</h3>
-      </div>
-      <div class="card-body">
-        <p class="text-muted">
-          Führen Sie bislang ein Dateninventar in einer Excel-Tabelle? Laden Sie
-          mit diesen Webdienst die Metadaten Ihrer Datensätze auf einfache Weise
-          auf die Interoperabilitätsplattform I14Y. Bitte verwenden Sie für Ihr
-          Inventar exakt die vorgegebene Excel-Struktur (siehe
-          <a href="{{ url_for('static', filename='inventory.xlsx') }}"
-            >Beispiel-Datei</a
-          >).
-        </p>
+{% extends "base.html" %}
 
-        <form
-          action="{{ url_for('upload_file') }}"
-          method="post"
-          enctype="multipart/form-data"
-        >
-          <div class="mb-3">
-            <label for="access_token" class="form-label"
-              >I14Y Zugriffstoken *</label
-            >
+{% block title %}I14Y Excel Import{% endblock %}
+
+{% block content %}
+<div class="workflow-section">
+    <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data" class="search-container">
+        <div>
+            <label class="field-label" for="access_token">I14Y Zugriffstoken</label>
             <textarea
-              class="form-control"
-              id="access_token"
-              name="access_token"
-              rows="4"
-              required
-              placeholder="Bearer eyJ..."
+                id="access_token"
+                name="access_token"
+                rows="5"
+                class="search-input"
+                required
+                placeholder="Bearer eyJ..."
             ></textarea>
-            <div class="form-text">
-              Fügen Sie Ihren vollständigen I14Y Zugriffstoken ein.
-            </div>
-          </div>
+            <p class="section-description">
+                Fügen Sie Ihren vollständigen Zugriffstoken ein. Der Token wird lokal geprüft, um Organisation und Benutzer zu ermitteln.
+            </p>
+        </div>
 
-          <div class="mb-3">
-            <label for="file" class="form-label">Excel-Datei auswählen *</label>
-            <input
-              type="file"
-              class="form-control"
-              id="file"
-              name="file"
-              accept=".xlsx"
-              required
-            />
-            <div class="form-text">
-              Nur Excel-Dateien (.xlsx) sind erlaubt. Maximale Dateigröße: 16MB
-            </div>
-          </div>
+        <div class="upload-section">
+            <label class="field-label" for="file">Excel-Datei auswählen <span class="optional-label">(.xlsx, max. 16 MB)</span></label>
+            <p class="template-hint">Vorlage: <a href="{{ url_for('static', filename='inventory.xlsx') }}">Beispiel-Datei herunterladen</a></p>
+            <input type="file" id="file" name="file" accept=".xlsx" class="file-input" required>
+            <label for="file" class="file-label">
+                <span class="file-icon">📎</span>
+                <span id="file-name-display">Datei auswählen…</span>
+            </label>
+        </div>
 
-          <button type="submit" class="btn btn-primary">
-            Upload und Verarbeitung starten
-          </button>
-        </form>
-      </div>
-    </div>
-
-    <div class="mt-4">
-      <h5>Anleitung:</h5>
-      <ol>
-        <li>Melden Sie sich bei I14Y an und kopieren Sie Ihr Zugriffstoken.</li>
-        <li>Fügen Sie das Token in das Textfeld ein.</li>
-        <li>
-          Stellen Sie sicher, dass Ihre Excel-Datei das korrekte Format hat.
-        </li>
-        <li>Wählen Sie die Excel-Datei aus.</li>
-        <li>Klicken Sie auf "Upload und Verarbeitung starten".</li>
-      </ol>
-
-      <div class="alert alert-info mt-3">
-        <strong>Token-Information:</strong> Der Zugriffstoken wird automatisch
-        analysiert, um Ihre Organisations-ID und Benutzerinformationen zu
-        extrahieren. Stellen Sie sicher, dass der Token gültig und nicht
-        abgelaufen ist.
-      </div>
-    </div>
-  </div>
+        <div class="button-row">
+            <button type="submit" class="primary-btn">Upload und Verarbeitung starten</button>
+        </div>
+    </form>
 </div>
+
+<div class="workflow-section">
+    <h2 class="dataset-title">Ablauf</h2>
+    <ol class="instruction-list">
+        <li>Bei I14Y anmelden und Zugriffstoken kopieren.</li>
+        <li>Token im Feld einfügen.</li>
+        <li>Excel-Datei mit korrektem Format auswählen.</li>
+        <li>Import starten und Ergebnis prüfen.</li>
+    </ol>
+</div>
+
+<script>
+    document.getElementById("file").addEventListener("change", function () {
+        const display = document.getElementById("file-name-display");
+        display.textContent = this.files.length ? this.files[0].name : "Datei auswählen…";
+    });
+</script>
 {% endblock %}

@@ -1,5 +1,4 @@
 import requests
-from jwt.algorithms import RSAAlgorithm
 
 
 _discovery_cache = {}
@@ -19,6 +18,14 @@ def get_openid_configuration(issuer: str) -> dict:
 
 
 def get_signing_key_from_jwks(jwks_uri: str, kid: str):
+    # Import lazily so missing crypto extras do not crash app startup.
+    try:
+        from jwt.algorithms import RSAAlgorithm
+    except ImportError as exc:
+        raise RuntimeError(
+            "PyJWT crypto backend is missing. Install with: pip install 'PyJWT[crypto]'"
+        ) from exc
+
     if jwks_uri not in _jwks_cache:
         response = requests.get(jwks_uri, timeout=10)
         response.raise_for_status()

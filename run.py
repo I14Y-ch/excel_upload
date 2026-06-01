@@ -1,6 +1,12 @@
+import os
+from dotenv import load_dotenv
+
+# Load .env from .do/.env (relative to this file)
+_env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".do", ".env")
+load_dotenv(_env_path)
+
 from flask import Flask
 from config import FLASK_SECRET_KEY, MAX_CONTENT_LENGTH
-import os
 import tempfile
 
 # Define the necessary folders
