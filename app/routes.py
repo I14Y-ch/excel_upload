@@ -129,6 +129,10 @@ def register_routes(app):
         os.makedirs(upload_folder, exist_ok=True)
         print(f"Using fallback upload directory: {upload_folder}")
 
+    @app.route("/health")
+    def health():
+        return jsonify({"status": "ok"}), 200
+
     @app.route("/")
     def index():
         return render_template("index.html")
