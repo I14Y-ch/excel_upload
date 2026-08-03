@@ -6,7 +6,7 @@ _env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".do", ".en
 load_dotenv(_env_path)
 
 from flask import Flask
-from config import FLASK_SECRET_KEY, MAX_CONTENT_LENGTH
+from config import SECRET_KEY, MAX_CONTENT_LENGTH
 import tempfile
 
 # Define the necessary folders
@@ -21,7 +21,7 @@ os.makedirs(upload_folder, exist_ok=True)
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
 # Configure the app
-app.config["SECRET_KEY"] = FLASK_SECRET_KEY
+app.config["SECRET_KEY"] = SECRET_KEY
 app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
 app.config["UPLOAD_FOLDER"] = upload_folder
 

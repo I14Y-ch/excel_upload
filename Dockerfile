@@ -12,6 +12,11 @@ RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted
 
 COPY . .
 
+# Create non-root user for security (mitigates container escape via app RCE)
+RUN useradd --create-home --shell /usr/sbin/nologin appuser \
+    && chown -R appuser:appuser /app
+USER appuser
+
 EXPOSE 5000
 
 CMD ["gunicorn", "run:app", "--bind", "0.0.0.0:5000"]

@@ -9,8 +9,19 @@ from config import ALLOWED_EXTENSIONS, JWT_DECODE_OPTIONS, JWT_EXPECTED_ISSUER
 from core import import_datasets
 
 
+# XLSX files are ZIP archives; magic bytes are PK (0x50 0x4B 0x03 0x04)
+_XLSX_MAGIC = b'PK\x03\x04'
+
+
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def allowed_file_content(file_stream) -> bool:
+    """Validate file content via magic bytes — prevents extension-only bypass."""
+    header = file_stream.read(4)
+    file_stream.seek(0)
+    return header == _XLSX_MAGIC
 
 
 def parse_jwt_token(token):
@@ -19,7 +30,8 @@ def parse_jwt_token(token):
             token = token[7:]
 
         unverified_header = jwt.get_unverified_header(token)
-        unverified_payload = jwt.decode(token, options={"verify_signature": False})
+        # Intentional: decode unverified to extract issuer, then verify below with JWKS. # nosemgrep: python.jwt.security.unverified-jwt-decode.unverified-jwt-decode
+        unverified_payload = jwt.decode(token, options={"verify_signature": False})  # nosemgrep: python.jwt.security.unverified-jwt-decode.unverified-jwt-decode
 
         issuer = unverified_payload.get("iss")
         if not issuer:
@@ -37,7 +49,7 @@ def parse_jwt_token(token):
         if not kid:
             raise ValueError("Token header does not contain 'kid'")
 
-        signing_key = get_signing_key_from_jwks(jwks_uri, kid)
+        signing_key = get_signing_key_from_jwks(jwks_uri, kid, issuer)
 
         decode_kwargs = {
             "jwt": token,
@@ -125,7 +137,7 @@ def register_routes(app):
     except Exception as e:
         print(f"WARNING: Upload directory may not be writable: {upload_folder}, Error: {e}")
         # Fall back to /tmp which should always be writable
-        upload_folder = os.path.join("/tmp", "i14y_uploads")
+        upload_folder = os.path.join("/tmp", "i14y_uploads")  # nosec B108 - controlled fallback path, not user input
         os.makedirs(upload_folder, exist_ok=True)
         print(f"Using fallback upload directory: {upload_folder}")
 
@@ -157,10 +169,19 @@ def register_routes(app):
         try:
             org_info = parse_jwt_token(access_token)
         except ValueError as e:
-            flash(f"Token-Fehler: {str(e)}")
+            # Map internal error messages to safe user-facing messages
+            msg = str(e)
+            if 'abgelaufen' in msg:
+                flash('Token ist abgelaufen. Bitte erneut einloggen.')
+            elif 'Issuer' in msg or 'issuer' in msg or 'iss' in msg:
+                flash('Token-Aussteller nicht autorisiert.')
+            elif 'Organisationen' in msg or 'agencies' in msg:
+                flash('Token enthält keine gültige Organisation.')
+            else:
+                flash('Ungültiger Token. Bitte erneut einloggen.')
             return redirect(url_for("index"))
 
-        if file and allowed_file(file.filename):
+        if file and allowed_file(file.filename) and allowed_file_content(file):
             filename = secure_filename(file.filename)
             unique_filename = f"{uuid.uuid4()}_{filename}"
             filepath = os.path.join(upload_folder, unique_filename)
@@ -205,13 +226,10 @@ def register_routes(app):
 
                     session["import_status"] = status
 
-            except Exception as e:
-                import traceback
-
+            except Exception:
                 session["import_result"] = {
                     "org_info": org_info,
-                    "message": f"Fehler beim Import: {str(e)}",
-                    "error_details": traceback.format_exc()[:500],  # Limit error length
+                    "message": "Fehler beim Import. Bitte erneut versuchen oder Support kontaktieren.",
                 }
                 session["import_status"] = "error"
 
@@ -222,7 +240,7 @@ def register_routes(app):
             # Redirect to results page
             return redirect(url_for("results"))
         else:
-            flash("Nur Excel-Dateien (.xlsx) sind erlaubt")
+            flash("Nur gültige Excel-Dateien (.xlsx) sind erlaubt")
             return redirect(url_for("index"))
 
     @app.route("/results")

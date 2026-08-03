@@ -4,10 +4,13 @@ import os
 API_BASE_URL = os.environ.get("API_BASE_URL", "https://api.i14y.admin.ch/api/partner/v1")
 
 # Flask web application settings
-FLASK_SECRET_KEY = os.environ.get("FLASK_SECRET_KEY")
+# Prefer standardized SECRET_KEY; keep FLASK_SECRET_KEY as backward-compat fallback.
+SECRET_KEY = os.environ.get("SECRET_KEY") or os.environ.get("FLASK_SECRET_KEY")
 
-if not FLASK_SECRET_KEY:
-    raise ValueError("Missing FLASK_SECRET_KEY environment variable")
+if not SECRET_KEY:
+    raise ValueError("Missing SECRET_KEY environment variable")
+if len(SECRET_KEY) < 32:
+    raise ValueError("SECRET_KEY must be at least 32 characters long")
 
 JWT_EXPECTED_ISSUER = os.environ.get("JWT_EXPECTED_ISSUER")
 if not JWT_EXPECTED_ISSUER:

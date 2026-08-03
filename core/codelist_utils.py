@@ -6,7 +6,7 @@ def get_themes_codelist():
     """Fetch themes codelist from I14Y API"""
     url = "https://api.i14y.admin.ch/api/public/v1/concepts/08da58dc-4dc8-f9cb-b6f2-7d16b3fa0cde/codelist-entries/exports/json"
     try:
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
         response.raise_for_status()
         data = response.json()
 
@@ -28,7 +28,7 @@ def get_license_codelist():
     """Fetch license codelist from I14Y API"""
     url = "https://api.i14y.admin.ch/api/public/v1/concepts/08db7eb9-8d92-b301-982e-5f7cbd44e45f/codelist-entries/exports/json"
     try:
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
         response.raise_for_status()
         data = response.json()
 

@@ -158,7 +158,7 @@ def create_dataset_payload(row, publisher_identifier=None):
 def submit_to_api(payload, api_token):
     headers = {"Authorization": api_token, "Content-Type": "application/json"}
 
-    response = requests.post(f"{API_BASE_URL}/datasets", headers=headers, json=payload)
+    response = requests.post(f"{API_BASE_URL}/datasets", headers=headers, json=payload, timeout=20)
 
     if response.status_code not in (200, 201):
         raise Exception(f"API submission failed: {response.status_code} - {response.text}")
