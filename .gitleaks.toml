@@ -1,0 +1,15 @@
+# gitleaks configuration
+# Extends the default ruleset and adds allowlisted findings.
+# Docs: https://github.com/gitleaks/gitleaks/blob/master/README.md#configuration
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Historical commits with default placeholder secrets in config.py (code has since been fixed to require env vars). Values must be considered leaked and rotated if ever used in production."
+commits = [
+    # config.py:7 — old FLASK_SECRET_KEY default (MathiasBornI14Y, 2025-05-24)
+    "1d31afe3786fb5ae85e89da410f0728aaa519311",
+    # config.py:8 — old FLASK_SECRET_KEY default (SergiyGoloviatinskiOFS, 2026-03-23)
+    "f97ffb38d5c27af429a4624accea0dc6faebe24b",
+]
