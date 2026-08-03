@@ -249,10 +249,10 @@ jobs:
           SECRET_REF="$(az containerapp show \
             --name "${AZURE_CONTAINER_APP_NAME}" \
             --resource-group "${AZURE_CONTAINER_APP_RESOURCE_GROUP}" \
-            --query "properties.template.containers[0].env[?name=='SECRET_KEY'].secretRef | [0]" \
+            --query "properties.template.containers[0].env[?name=='FLASK_SECRET_KEY'].secretRef | [0]" \
             -o tsv)"
           if [ -z "${SECRET_REF}" ]; then
-            echo "SECRET_KEY must reference a Container App secret before deployment."
+            echo "FLASK_SECRET_KEY must reference a Container App secret (secretRef) before deployment."
             exit 1
           fi
 
@@ -262,7 +262,7 @@ jobs:
             --query "[?name=='${SECRET_REF}'].name | [0]" \
             -o tsv)"
           if [ -z "${SECRET_EXISTS}" ]; then
-            echo "The Container App secret referenced by SECRET_KEY does not exist."
+            echo "The Container App secret referenced by FLASK_SECRET_KEY does not exist."
             exit 1
           fi
 
