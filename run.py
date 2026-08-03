@@ -33,4 +33,6 @@ register_routes(app)
 if __name__ == "__main__":
     # Use PORT environment variable if available (for Digital Ocean)
     port = int(os.environ.get("PORT", 5000))
-    app.run(debug=False, host="0.0.0.0", port=port)
+    # Bind to all interfaces: required in containerized deployments (Azure Container Apps,
+    # DO App Platform) where the platform's ingress reaches the app via the container network.
+    app.run(debug=False, host="0.0.0.0", port=port)  # nosec B104
