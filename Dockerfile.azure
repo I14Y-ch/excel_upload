@@ -19,8 +19,11 @@ RUN apt-get update \
 COPY requirements.txt .
 # Upgrade pip + setuptools together: setuptools>=78.1.1 fixes CVE-2025-47273 (path traversal),
 # kept <81 to preserve pkg_resources for transitive deps that still import it.
+# Uninstall pip at the end: removes pip's vendored deps (old msgpack, old pkg_resources)
+# from the runtime image; pip is not needed once the app is installed.
 RUN python -m pip install --upgrade pip "setuptools>=78.1.1,<81" \
-    && python -m pip install -r requirements.txt
+    && python -m pip install -r requirements.txt \
+    && python -m pip uninstall --yes pip
 
 COPY --chown=app:app . .
 RUN mkdir -p /app/uploads \
