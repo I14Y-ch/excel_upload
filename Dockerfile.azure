@@ -17,7 +17,9 @@ RUN apt-get update \
     && adduser --system --ingroup app --home /app --no-create-home app
 
 COPY requirements.txt .
-RUN python -m pip install --upgrade pip \
+# Upgrade pip + setuptools together: setuptools>=78.1.1 fixes CVE-2025-47273 (path traversal),
+# kept <81 to preserve pkg_resources for transitive deps that still import it.
+RUN python -m pip install --upgrade pip "setuptools>=78.1.1,<81" \
     && python -m pip install -r requirements.txt
 
 COPY --chown=app:app . .
