@@ -3,7 +3,7 @@ python-dotenv==1.2.2
 Werkzeug==3.1.8
 openpyxl==3.1.5
 pandas==2.2.3
-requests==2.33.0
+requests==2.34.2
 python-dateutil==2.9.0
 PyJWT[crypto]==2.13.0
 cryptography==49.0.0
