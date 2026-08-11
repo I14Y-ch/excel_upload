@@ -7,7 +7,7 @@ requests==2.34.2
 python-dateutil==2.9.0
 PyJWT[crypto]==2.13.0
 cryptography==50.0.0
-APScheduler==3.11.0
+APScheduler==3.11.3
 gunicorn==25.1.0
 # Transitive from APScheduler; pinned to fix GHSA-6v7p-g79w-8964 (out-of-bounds read on Unpacker reuse).
 msgpack>=1.2.1
